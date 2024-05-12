@@ -1,0 +1,185 @@
+package com.mint.lc.demo.view;
+
+import com.mint.lc.demo.model.dto.EventRecord;
+import com.mint.lc.demo.presenter.EventPresenter;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.util.StringConverter;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+
+public class EventScreen {
+
+    public static final DateTimeFormatter EVENT_LIST_DAY_FORMAT = DateTimeFormatter.ofPattern("EEE dd");
+
+    private final EventPresenter presenter;
+
+    public EventScreen(EventPresenter presenter) {
+       this.presenter = presenter;
+    }
+
+    public Dialog<ButtonType> build() {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Event Details");
+        dialog.setHeaderText("Event Scheduled for " + this.presenter.getSelectedDate());
+
+        // Create initial date picker
+        DatePicker initialDatePicker = new DatePicker(this.presenter.getSelectedDate());
+        StringConverter<LocalDate> stringConverter = new StringConverter<>() {
+            @Override
+            public String toString(LocalDate object) {
+                return object != null ? object.toString() : "";
+            }
+
+            @Override
+            public LocalDate fromString(String string) {
+                return string != null && !string.isEmpty() ? LocalDate.parse(string) : null;
+            }
+        };
+        initialDatePicker.setConverter(stringConverter);
+        //initialDatePicker.getEditor().setTextFormatter(new TextFormatter<>(stringConverter));
+        initialDatePicker.getEditor().focusedProperty().addListener(buildFocusListener(initialDatePicker));
+
+        DatePicker endDatePicker = new DatePicker(this.presenter.getSelectedDate());
+        endDatePicker.setConverter(stringConverter);
+        endDatePicker.getEditor().focusedProperty().addListener(buildFocusListener(endDatePicker));
+
+        TextField descriptionField = new TextField();
+        descriptionField.setPromptText("Event Description");
+
+        ButtonType createEventType = new ButtonType("Create Event");
+
+        dialog.getDialogPane().getButtonTypes().addAll(createEventType, ButtonType.CANCEL);
+
+        ListView<EventRecord> eventListView = new ListView<>();
+        eventListView.setPrefHeight(100);
+        List<EventRecord> eventsOfDay = this.presenter.getEventsByDate();
+        if (eventsOfDay != null && !eventsOfDay.isEmpty())
+            eventListView.getItems().addAll(eventsOfDay);
+
+        eventListView.setCellFactory(param -> new ListCell<>() {
+            private final Hyperlink editLink = new Hyperlink("Edit");
+            private final Hyperlink deleteLink = new Hyperlink("Delete");
+
+            {
+                editLink.setOnAction(event -> {
+                    EventRecord selectedItem = getItem();
+                    if (selectedItem != null) {
+                        initialDatePicker.setValue(selectedItem.getStartDate());
+                        endDatePicker.setValue(selectedItem.getEndDate());
+                        descriptionField.setText(selectedItem.getDescription());
+                    }
+                });
+
+                deleteLink.setOnAction(event -> {
+                    EventRecord selectedItem = getItem();
+                    if (selectedItem != null) {
+                        eventListView.getItems().remove(selectedItem);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(EventRecord item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(" (" + EVENT_LIST_DAY_FORMAT.format(item.getStartDate()) + " - " + EVENT_LIST_DAY_FORMAT.format(item.getEndDate()) + ") " + item.getDescription());
+                    setGraphic(new HBox(5, editLink, deleteLink));
+                }
+            }
+        });
+
+        // Populate fields if editing an existing event
+        EventRecord selectedEvent = getSelectedEvent();
+        if (selectedEvent != null) {
+            initialDatePicker.setValue(selectedEvent.getStartDate());
+            endDatePicker.setValue(selectedEvent.getEndDate());
+            descriptionField.setText(selectedEvent.getDescription());
+        }
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 10, 10, 10));
+
+        grid.add(new Label("Events for " + this.presenter.getSelectedDate()), 0, 0);
+        grid.add(eventListView, 0, 1, 2, 1);
+        grid.add(new Label("Initial Date:"), 0, 2);
+        grid.add(initialDatePicker, 1, 2);
+        grid.add(new Label("End Date:"), 0, 3);
+        grid.add(endDatePicker, 1, 3);
+        grid.add(new Label("Description:"), 0, 4);
+        grid.add(descriptionField, 1, 4);
+
+        Node createEventButton = dialog.getDialogPane().lookupButton(createEventType);
+        createEventButton.setDisable(true);
+
+        initialDatePicker.valueProperty().addListener((observable, oldValue, newValue) ->
+                createEventButton.setDisable(newValue == null || endDatePicker.getValue() == null || descriptionField.getText().isEmpty()));
+        //initialDatePicker.getEditor().setDisable(true);
+
+        endDatePicker.valueProperty().addListener((observable, oldValue, newValue) ->
+                createEventButton.setDisable(newValue == null || initialDatePicker.getValue() == null || descriptionField.getText().isEmpty()));
+        endDatePicker.getEditor().setDisable(true);
+        descriptionField.textProperty().addListener((observable, oldValue, newValue) ->
+                createEventButton.setDisable(newValue.isEmpty() || initialDatePicker.getValue() == null || endDatePicker.getValue() == null));
+
+        dialog.getDialogPane().setContent(grid);
+
+        Platform.runLater(initialDatePicker::requestFocus);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == createEventType) {
+                return new ButtonType("Create Event", ButtonBar.ButtonData.OK_DONE);
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(result -> {
+            if (result.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                initialDatePicker.getEditor().commitValue();
+                LocalDate initialDate = initialDatePicker.getValue();
+                LocalDate endDate = endDatePicker.getValue();
+                String description = descriptionField.getText();
+                this.presenter.createEvent(initialDate, endDate, description);
+            }
+        });
+        return dialog;
+    }
+
+    private EventRecord getSelectedEvent() {
+        return this.presenter.getSelectedEvent();
+    }
+
+    private ChangeListener<Boolean> buildFocusListener(DatePicker datePicker) {
+        return (obj, wasFocused, isFocused) -> {
+            if (!isFocused) {
+                try {
+                    datePicker.setValue(datePicker.getConverter().fromString(datePicker.getEditor().getText()));
+                } catch (DateTimeParseException e) {
+                    e.printStackTrace();
+                    datePicker.getEditor().setText(datePicker.getConverter().toString(datePicker.getValue()));
+                }
+            }
+        };
+    }
+
+    public void displayExceptionAlert(Alert.AlertType alertType, String title, String message) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(title);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+}

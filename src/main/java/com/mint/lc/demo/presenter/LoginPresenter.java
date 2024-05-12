@@ -1,9 +1,9 @@
 package com.mint.lc.demo.presenter;
 
+import com.mint.lc.demo.Configuration;
 import com.mint.lc.demo.LoginContractor;
 import com.mint.lc.demo.model.dto.Instructor;
 import com.mint.lc.demo.model.LoginApiService;
-import com.mint.lc.demo.view.CalendarScreen;
 import com.mint.lc.demo.view.LoginScreen;
 import javafx.application.Application;
 import javafx.concurrent.WorkerStateEvent;
@@ -24,6 +24,7 @@ public class LoginPresenter extends Application implements LoginContractor.Prese
     private Stage stage;
 
     public static void main(String[] args) {
+        Configuration.loadLoggingProperties();
         launch(args);
     }
 
@@ -58,7 +59,7 @@ public class LoginPresenter extends Application implements LoginContractor.Prese
     private void openCalendarScreen(Instructor instructor) {
         stage.close();
 
-        CalendarScreen mainApp = new CalendarScreen(instructor);
+        CalendarPresenter mainApp = new CalendarPresenter(instructor);
         mainApp.start(new Stage());
     }
 
