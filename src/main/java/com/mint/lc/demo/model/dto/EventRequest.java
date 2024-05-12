@@ -1,16 +1,18 @@
-package com.mint.lc.demo;
+package com.mint.lc.demo.model.dto;
 
 import java.time.LocalDate;
 
-public class EventRecord {
+public class EventRequest {
     private LocalDate startDate;
     private LocalDate endDate;
     private String description;
+    private String eventType;
 
-    public EventRecord(LocalDate initialDate, LocalDate endDate, String description) {
-        this.startDate = initialDate;
+    public EventRequest(LocalDate startDate, LocalDate endDate, String description, String eventType) {
+        this.startDate = startDate;
         this.endDate = endDate;
         this.description = description;
+        this.eventType = eventType;
     }
 
     public LocalDate getStartDate() {
@@ -37,16 +39,22 @@ public class EventRecord {
         this.description = description;
     }
 
-    @Override
-    public String toString() {
-        return "EventRecord{" +
-                "initialDate=" + startDate +
-                ", endDate=" + endDate +
-                ", description='" + description + '\'' +
-                '}';
+    public String getEventType() {
+        return eventType;
     }
 
-    public boolean isThisDay(LocalDate atDay) {
-        return atDay.compareTo(startDate) >= 0 && atDay.compareTo(endDate) <= 0;
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    @Override
+    public String toString() {
+        return "EventRequest{" +
+                "startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", description='" + description + '\'' +
+                ", eventType='" + eventType + '\'' +
+                '}';
     }
 }
+

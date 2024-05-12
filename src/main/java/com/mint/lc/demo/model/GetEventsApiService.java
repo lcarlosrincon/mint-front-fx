@@ -1,10 +1,11 @@
-package com.mint.lc.demo;
+package com.mint.lc.demo.model;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
+import com.mint.lc.demo.model.dto.EventRecord;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 

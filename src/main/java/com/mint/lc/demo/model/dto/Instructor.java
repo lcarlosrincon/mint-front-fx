@@ -1,4 +1,4 @@
-package com.mint.lc.demo;
+package com.mint.lc.demo.model.dto;
 
 import java.time.LocalDate;
 

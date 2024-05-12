@@ -1,4 +1,4 @@
-package com.mint.lc.demo;
+package com.mint.lc.demo.model;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

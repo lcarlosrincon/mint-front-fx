@@ -70,7 +70,7 @@
                     <execution>
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.mint.lc.demo.LoginScreen</mainClass>
+                            <mainClass>com.mint.lc.demo.presenter.LoginPresenter</mainClass>
                         </configuration>
                     </execution>
                 </executions>

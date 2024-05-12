@@ -1,4 +1,4 @@
-package com.mint.lc.demo;
+package com.mint.lc.demo.model;
 
 import com.google.gson.*;
 
@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-class LocalDateSerializer implements JsonDeserializer<LocalDate>, JsonSerializer<LocalDate> {
+public class LocalDateSerializer implements JsonDeserializer<LocalDate>, JsonSerializer<LocalDate> {
 
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd").withLocale(Locale.ENGLISH);
 

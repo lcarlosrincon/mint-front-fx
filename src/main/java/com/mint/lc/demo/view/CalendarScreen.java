@@ -1,6 +1,10 @@
-package com.mint.lc.demo;
+package com.mint.lc.demo.view;
 
-import javafx.application.Application;
+import com.mint.lc.demo.model.CreateEventApiService;
+import com.mint.lc.demo.model.GetEventsApiService;
+import com.mint.lc.demo.model.dto.EventRecord;
+import com.mint.lc.demo.model.dto.EventRequest;
+import com.mint.lc.demo.model.dto.Instructor;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.HPos;
@@ -31,14 +35,20 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class EventSchedulerApp {
+public class CalendarScreen {
 
-    private static final Logger LOGGER = Logger.getLogger(EventSchedulerApp.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CalendarScreen.class.getName());
     public static final DateTimeFormatter EVENT_LIST_DAY_FORMAT = DateTimeFormatter.ofPattern("EEE dd");
 
     private YearMonth currentYearMonth;
     private GridPane calendarGrid;
     private List<EventRecord> events;
+
+    private final Instructor instructor;
+
+    public CalendarScreen(Instructor instructor) {
+        this.instructor = instructor;
+    }
 
     private void loadLoggingProperties() {
         try (InputStream is = getClass().getResourceAsStream("/logger.properties")) {
@@ -104,7 +114,7 @@ public class EventSchedulerApp {
 
         Scene scene = new Scene(root, 600, 400);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Monthly Event Scheduler");
+        primaryStage.setTitle(instructor.getFirstName() + " Calendar");
         primaryStage.show();
     }
 
@@ -117,7 +127,7 @@ public class EventSchedulerApp {
         // paint empty calendar
         this.events = List.of();
         this.updateGridCalendar();
-        GetEventsApiService eventAPIService = new GetEventsApiService("111", currentYearMonth);
+        GetEventsApiService eventAPIService = new GetEventsApiService(instructor.getId(), currentYearMonth);
         eventAPIService.setOnSucceeded(event -> {
             List<EventRecord> eventRecords = eventAPIService.getValue();
             // Process the fetched event records
@@ -361,7 +371,8 @@ public class EventSchedulerApp {
     private void createEvent(LocalDate initialDate, LocalDate endDate, String description, ListView<EventRecord> eventListView) {
         System.out.println("Create event" + initialDate + endDate);
         LOGGER.log(Level.INFO, "Fetching data for current month {0}", currentYearMonth);
-        CreateEventApiService eventAPIService = new CreateEventApiService("111", new EventRequest(initialDate, endDate, description, "abc1"));
+        CreateEventApiService eventAPIService = new CreateEventApiService(instructor.getId(),
+                new EventRequest(initialDate, endDate, description, "abc1"));
         eventAPIService.setOnSucceeded(event -> {
             EventRecord eventRecord = eventAPIService.getValue();
             processEventCreated(eventRecord);
