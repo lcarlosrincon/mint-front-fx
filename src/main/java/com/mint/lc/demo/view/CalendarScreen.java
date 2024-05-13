@@ -1,5 +1,6 @@
 package com.mint.lc.demo.view;
 
+import com.mint.lc.demo.CalendarContractor;
 import com.mint.lc.demo.model.dto.EventRecord;
 import com.mint.lc.demo.presenter.CalendarPresenter;
 import javafx.geometry.HPos;
@@ -21,11 +22,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
 
-public class CalendarScreen {
+public class CalendarScreen implements CalendarContractor.View {
 
     private static final Logger LOGGER = Logger.getLogger(CalendarScreen.class.getName());
 
-    private final CalendarPresenter presenter;
+    private final CalendarContractor.Presenter presenter;
 
     private GridPane calendarGrid;
     private Label monthLabel;
@@ -83,6 +84,7 @@ public class CalendarScreen {
         int daysInMonth = this.presenter.getCurrentYearMonth().lengthOfMonth();
         int firstDayOfWeek = this.presenter.getCurrentYearMonth().atDay(1).getDayOfWeek().getValue();
         Map<LocalDate, List<EventRecord>> eventsMap = this.presenter.getEventMap();
+        LOGGER.info("Events to paint " + eventsMap);
 
         for (int i = 1; i <= daysInMonth; i++) {
             Button dayButton = new Button(Integer.toString(i));
@@ -124,7 +126,6 @@ public class CalendarScreen {
         alert.setTitle(title);
         alert.setHeaderText(title);
         alert.setContentText(message);
-
         alert.showAndWait();
     }
 

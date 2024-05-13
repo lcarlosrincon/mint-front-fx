@@ -1,12 +1,13 @@
 package com.mint.lc.demo.model;
 
+import com.mint.lc.demo.CalendarContractor;
 import com.mint.lc.demo.model.dto.EventRecord;
 import com.mint.lc.demo.model.dto.Instructor;
 
 import java.time.YearMonth;
 import java.util.List;
 
-public class CalendarModel {
+public class CalendarModel implements CalendarContractor.Model {
 
     private Instructor instructor;
     private YearMonth currentYearMonth;

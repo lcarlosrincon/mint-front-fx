@@ -3,14 +3,25 @@ package com.mint.lc.demo.model.dto;
 import java.time.LocalDate;
 
 public class EventRecord {
+
+    private String id;
     private LocalDate startDate;
     private LocalDate endDate;
     private String description;
 
-    public EventRecord(LocalDate initialDate, LocalDate endDate, String description) {
+    public EventRecord(String id, LocalDate initialDate, LocalDate endDate, String description) {
+        this.id = id;
         this.startDate = initialDate;
         this.endDate = endDate;
         this.description = description;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public LocalDate getStartDate() {

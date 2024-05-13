@@ -14,9 +14,7 @@ public class LocalDateSerializer implements JsonDeserializer<LocalDate>, JsonSer
     @Override
     public LocalDate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
-        System.out.println("*****************DATE*********");
-        return LocalDate.parse(json.getAsString(),
-                FORMATTER);
+        return LocalDate.parse(json.getAsString(), FORMATTER);
     }
 
     @Override

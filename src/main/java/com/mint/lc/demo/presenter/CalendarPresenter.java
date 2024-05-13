@@ -1,5 +1,6 @@
 package com.mint.lc.demo.presenter;
 
+import com.mint.lc.demo.CalendarContractor;
 import com.mint.lc.demo.model.CalendarModel;
 import com.mint.lc.demo.model.GetEventsApiService;
 import com.mint.lc.demo.model.dto.EventRecord;
@@ -19,15 +20,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
-public class CalendarPresenter {
+public class CalendarPresenter implements CalendarContractor.Presenter {
 
     private static final Logger LOGGER = Logger.getLogger(CalendarPresenter.class.getName());
 
-    private final CalendarScreen screen;
+    private final CalendarContractor.View screen;
 
-    private final CalendarModel model;
+    private final CalendarContractor.Model model;
 
     public CalendarPresenter(Instructor instructor) {
         this.model = new CalendarModel(instructor, YearMonth.now(), List.of());
@@ -56,8 +56,7 @@ public class CalendarPresenter {
         this.updateCalendar();
     }
 
-    public void updateCalendar() {
-        // paint empty calendar
+    private void updateCalendar() {
         this.model.setEvents(List.of());
         this.screen.updateGridCalendar();
         GetEventsApiService eventAPIService = new GetEventsApiService(this.model.getInstructor().getId(), getCurrentYearMonth());
@@ -84,20 +83,18 @@ public class CalendarPresenter {
     public void showEventDialog(LocalDate selectedDate) {
         List<EventRecord> eventsOfDay = getEventMap().getOrDefault(selectedDate, List.of());
         EventPresenter eventPresenter = new EventPresenter(eventsOfDay, selectedDate, model.getInstructor());
-        eventPresenter.start(newEvent -> processEventCreated(newEvent));
+        eventPresenter.start(this::processEventCreated);
     }
 
-    private void processEventCreated(EventRecord eventRecord) {
-        this.model.setEvents(Stream.concat(this.getEvents().stream(),
-                Stream.of(eventRecord)).collect(Collectors.toList()));
-        this.screen.updateGridCalendar();
+    private void processEventCreated(EventRecord newEvent) {
+        this.updateCalendar();
     }
 
     public YearMonth getCurrentYearMonth() {
         return this.model.getCurrentYearMonth();
     }
 
-    public List<EventRecord> getEvents() {
+    private List<EventRecord> getEvents() {
         return this.model.getEvents();
     }
 

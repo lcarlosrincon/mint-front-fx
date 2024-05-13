@@ -1,12 +1,13 @@
 package com.mint.lc.demo.model;
 
+import com.mint.lc.demo.EventContractor;
 import com.mint.lc.demo.model.dto.EventRecord;
 import com.mint.lc.demo.model.dto.Instructor;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public class EventModel {
+public class EventModel implements EventContractor.Model {
 
     private List<EventRecord> eventsByDay;
     private LocalDate selectedDate;
@@ -49,7 +50,4 @@ public class EventModel {
         return instructor;
     }
 
-    public void setInstructor(Instructor instructor) {
-        this.instructor = instructor;
-    }
 }

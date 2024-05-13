@@ -1,7 +1,7 @@
 package com.mint.lc.demo.view;
 
+import com.mint.lc.demo.EventContractor;
 import com.mint.lc.demo.model.dto.EventRecord;
-import com.mint.lc.demo.presenter.EventPresenter;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
@@ -16,14 +16,14 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
-public class EventScreen {
+public class EventScreen implements EventContractor.View {
 
     public static final DateTimeFormatter EVENT_LIST_DAY_FORMAT = DateTimeFormatter.ofPattern("EEE dd");
 
-    private final EventPresenter presenter;
+    private final EventContractor.Presenter presenter;
 
-    public EventScreen(EventPresenter presenter) {
-       this.presenter = presenter;
+    public EventScreen(EventContractor.Presenter presenter) {
+        this.presenter = presenter;
     }
 
     public Dialog<ButtonType> build() {
@@ -73,15 +73,18 @@ public class EventScreen {
                 editLink.setOnAction(event -> {
                     EventRecord selectedItem = getItem();
                     if (selectedItem != null) {
+                        presenter.setSelectedEvent(selectedItem);
                         initialDatePicker.setValue(selectedItem.getStartDate());
                         endDatePicker.setValue(selectedItem.getEndDate());
                         descriptionField.setText(selectedItem.getDescription());
+                        Platform.runLater(initialDatePicker::requestFocus);
                     }
                 });
 
                 deleteLink.setOnAction(event -> {
                     EventRecord selectedItem = getItem();
                     if (selectedItem != null) {
+                        presenter.deleteEvent(selectedItem);
                         eventListView.getItems().remove(selectedItem);
                     }
                 });
@@ -127,11 +130,9 @@ public class EventScreen {
 
         initialDatePicker.valueProperty().addListener((observable, oldValue, newValue) ->
                 createEventButton.setDisable(newValue == null || endDatePicker.getValue() == null || descriptionField.getText().isEmpty()));
-        //initialDatePicker.getEditor().setDisable(true);
 
         endDatePicker.valueProperty().addListener((observable, oldValue, newValue) ->
                 createEventButton.setDisable(newValue == null || initialDatePicker.getValue() == null || descriptionField.getText().isEmpty()));
-        endDatePicker.getEditor().setDisable(true);
         descriptionField.textProperty().addListener((observable, oldValue, newValue) ->
                 createEventButton.setDisable(newValue.isEmpty() || initialDatePicker.getValue() == null || endDatePicker.getValue() == null));
 
@@ -148,11 +149,13 @@ public class EventScreen {
 
         dialog.showAndWait().ifPresent(result -> {
             if (result.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
-                initialDatePicker.getEditor().commitValue();
                 LocalDate initialDate = initialDatePicker.getValue();
                 LocalDate endDate = endDatePicker.getValue();
                 String description = descriptionField.getText();
-                this.presenter.createEvent(initialDate, endDate, description);
+                if (endDate != null && initialDate != null && endDate.compareTo(initialDate) >= 0)
+                    this.presenter.saveEvent(initialDate, endDate, description);
+                else
+                    displayExceptionAlert(Alert.AlertType.WARNING, "Validation Dates", "Please, check the end date is after of start date");
             }
         });
         return dialog;
