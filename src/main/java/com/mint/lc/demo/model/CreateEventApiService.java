@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
+import com.mint.lc.demo.Contractor;
 import com.mint.lc.demo.model.dto.EventRecord;
 import com.mint.lc.demo.model.dto.EventRequest;
 import javafx.concurrent.Service;
@@ -16,9 +17,9 @@ import java.util.logging.Logger;
 
 public class CreateEventApiService extends Service<EventRecord> {
 
-    private static final Logger LOGGER = Logger.getLogger( CreateEventApiService.class.getName() );
+    private static final Logger LOGGER = Logger.getLogger(CreateEventApiService.class.getName());
 
-    private static final String DEFAULT_URL = "http://localhost:8081/instructors/%s/events";
+    private static final String DEFAULT_URL = "/instructors/%s/events";
     private final String apiUrl;
     private final EventRequest request;
 
@@ -27,7 +28,8 @@ public class CreateEventApiService extends Service<EventRecord> {
             .setPrettyPrinting().create();
 
     public CreateEventApiService(String instructorId, EventRequest request) {
-        this.apiUrl = String.format(DEFAULT_URL, instructorId);
+        this.apiUrl = System.getProperty(Contractor.Model.API_URL_PROPERTY) +
+                String.format(DEFAULT_URL, instructorId);
         this.request = request;
     }
 

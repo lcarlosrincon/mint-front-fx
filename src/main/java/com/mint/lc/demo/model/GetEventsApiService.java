@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
+import com.mint.lc.demo.Contractor;
 import com.mint.lc.demo.model.dto.EventRecord;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -21,13 +22,13 @@ public class GetEventsApiService extends Service<List<EventRecord>> {
 
     private static final Logger LOGGER = Logger.getLogger( GetEventsApiService.class.getName() );
 
-    private static final String DEFAULT_URL = "http://localhost:8081/instructors/%s/events?month=%s";
+    private static final String DEFAULT_URL = "/instructors/%s/events?month=%s";
     public static final String MONTH_REQUEST_FORMAT = "yyyy-MM";
     private final String apiUrl;
 
     public GetEventsApiService(String instructorId, YearMonth month) {
-        this.apiUrl = String.format(DEFAULT_URL, instructorId,
-                month.format(DateTimeFormatter.ofPattern(MONTH_REQUEST_FORMAT)));
+        this.apiUrl = System.getProperty(Contractor.Model.API_URL_PROPERTY) +
+                String.format(DEFAULT_URL, instructorId, month.format(DateTimeFormatter.ofPattern(MONTH_REQUEST_FORMAT)));
     }
 
     @Override

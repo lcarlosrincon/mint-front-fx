@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
+import com.mint.lc.demo.Contractor;
 import com.mint.lc.demo.LoginContractor;
 import com.mint.lc.demo.model.dto.Instructor;
 import com.mint.lc.demo.model.dto.LogRequest;
@@ -21,7 +22,7 @@ public class LoginApiService extends Service<Instructor> implements LoginContrac
 
     private static final Logger LOGGER = Logger.getLogger(LoginApiService.class.getName());
 
-    private static final String DEFAULT_URL = "http://localhost:8081/v1/login";
+    private static final String DEFAULT_URL = "/login";
     private final String apiUrl;
     private String username;
     private String password;
@@ -32,7 +33,7 @@ public class LoginApiService extends Service<Instructor> implements LoginContrac
             .setPrettyPrinting().create();
 
     public LoginApiService() {
-        this.apiUrl = DEFAULT_URL;
+        this.apiUrl = System.getProperty(Contractor.Model.API_URL_PROPERTY) + DEFAULT_URL;
     }
 
     @Override

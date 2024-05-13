@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
+import com.mint.lc.demo.Contractor;
 import com.mint.lc.demo.model.dto.EventRecord;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -17,7 +18,7 @@ public class EditEventApiService extends Service<EventRecord> {
 
     private static final Logger LOGGER = Logger.getLogger( EditEventApiService.class.getName() );
 
-    private static final String DEFAULT_URL = "http://localhost:8081/instructors/%s/events/%s";
+    private static final String DEFAULT_URL = "/instructors/%s/events/%s";
     private final String apiUrl;
     private final EventRecord request;
 
@@ -26,7 +27,7 @@ public class EditEventApiService extends Service<EventRecord> {
             .setPrettyPrinting().create();
 
     public EditEventApiService(String instructorId, EventRecord request) {
-        this.apiUrl = String.format(DEFAULT_URL, instructorId, request.getId());
+        this.apiUrl = System.getProperty(Contractor.Model.API_URL_PROPERTY) + String.format(DEFAULT_URL, instructorId, request.getId());
         this.request = request;
     }
 

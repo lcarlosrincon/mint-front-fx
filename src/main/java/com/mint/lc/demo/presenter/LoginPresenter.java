@@ -25,6 +25,7 @@ public class LoginPresenter extends Application implements LoginContractor.Prese
 
     public static void main(String[] args) {
         Configuration.loadLoggingProperties();
+        Configuration.loadProperties();
         launch(args);
     }
 

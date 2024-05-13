@@ -26,6 +26,8 @@ public interface Contractor {
 
     interface Model<T> {
 
+        String API_URL_PROPERTY = "api.url";
+
         T getValue();
 
         Throwable getException();
