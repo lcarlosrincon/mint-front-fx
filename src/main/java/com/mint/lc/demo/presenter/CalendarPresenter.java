@@ -3,9 +3,11 @@ package com.mint.lc.demo.presenter;
 import com.mint.lc.demo.CalendarContractor;
 import com.mint.lc.demo.model.CalendarModel;
 import com.mint.lc.demo.model.GetEventsApiService;
+import com.mint.lc.demo.model.SyncExternalEventsApiService;
 import com.mint.lc.demo.model.dto.EventRecord;
 import com.mint.lc.demo.model.dto.Instructor;
 import com.mint.lc.demo.view.CalendarScreen;
+import javafx.concurrent.Service;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
@@ -103,6 +105,25 @@ public class CalendarPresenter implements CalendarContractor.Presenter {
                 .collect(Collectors.toMap(day -> getCurrentYearMonth().atDay(day),
                         day -> getEvents(getCurrentYearMonth().atDay(day), this.getEvents()),
                         (d1, d2) -> d1));
+    }
+
+    @Override
+    public void syncExternalCalendars() {
+        Service<List<EventRecord>> action = new SyncExternalEventsApiService(this.model.getInstructor().getId(),
+                getCurrentYearMonth());
+        action.setOnSucceeded(event -> {
+            List<EventRecord> eventRecords = action.getValue();
+            if (eventRecords.isEmpty()) {
+                this.screen.displayExceptionAlert(Alert.AlertType.INFORMATION,
+                        "Sync Events", "new events were not found for this month");
+            }
+            this.updateCalendar();
+        });
+        action.setOnFailed(event -> {
+            LOGGER.log(Level.SEVERE, "Failed to sync calendars: " + action.getException().getMessage());
+            this.screen.displayExceptionAlert(Alert.AlertType.ERROR, "Exception has occurred", action.getException().getMessage());
+        });
+        action.start();
     }
 
     private List<EventRecord> getEvents(LocalDate atDay, List<EventRecord> events) {

@@ -11,24 +11,28 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GetEventsApiService extends Service<List<EventRecord>> {
+public class SyncExternalEventsApiService extends Service<List<EventRecord>> {
 
-    private static final Logger LOGGER = Logger.getLogger( GetEventsApiService.class.getName() );
+    private static final Logger LOGGER = Logger.getLogger(SyncExternalEventsApiService.class.getName());
 
-    private static final String DEFAULT_URL = "/instructors/%s/events?month=%s";
+    private static final String DEFAULT_URL = "/instructors/%s/events/externals";
     private final String apiUrl;
+    private final YearMonth month;
 
-    public GetEventsApiService(String instructorId, YearMonth month) {
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDate.class, new LocalDateSerializer())
+            .setPrettyPrinting().create();
+
+    public SyncExternalEventsApiService(String instructorId, YearMonth month) {
         this.apiUrl = System.getProperty(Contractor.Model.API_URL_PROPERTY) +
-                String.format(DEFAULT_URL, instructorId, month.format(DateTimeFormatter.ofPattern(
-                        Contractor.Model.MONTH_REQUEST_FORMAT)));
+                String.format(DEFAULT_URL, instructorId);
+        this.month = month;
     }
 
     @Override
@@ -36,19 +40,18 @@ public class GetEventsApiService extends Service<List<EventRecord>> {
         return new Task<>() {
             @Override
             protected List<EventRecord> call() throws Exception {
-                LOGGER.log(Level.INFO, "Calling get events api {0}", apiUrl);
-                HttpResponse<JsonNode> jsonResponse = Unirest.get(apiUrl)
+                LOGGER.log(Level.INFO, "Calling create events api {0}", apiUrl);
+                String monthParam = month.format(DateTimeFormatter.ofPattern(Contractor.Model.MONTH_REQUEST_FORMAT));
+                LOGGER.log(Level.INFO, "Calling sync events api with request {0}", monthParam);
+                HttpResponse<JsonNode> jsonResponse = Unirest.post(apiUrl)
                         .header("accept", "application/json")
+                        .header("content-type", "application/json")
+                        .queryString("month", monthParam)
                         .asJson();
 
-                Gson gson = new GsonBuilder()
-                        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer())
-                        .registerTypeAdapter(LocalDate.class, new LocalDateSerializer())
-                        .setPrettyPrinting().create();
                 String body = jsonResponse.getBody().toString();
                 LOGGER.log(Level.INFO, "Processing answer: {0}", body);
                 EventRecord[] eventRecordsArray = gson.fromJson(body, EventRecord[].class);
-                LOGGER.log(Level.INFO, "{0} Events: {1}", new Object[]{eventRecordsArray.length, eventRecordsArray});
                 return List.of(eventRecordsArray);
             }
         };

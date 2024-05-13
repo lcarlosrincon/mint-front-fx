@@ -49,7 +49,7 @@ public class LoginScreen implements LoginContractor.View {
         validationLabel.setFont(Font.font("Arial", 10));
 
         Button loginButton = new Button("Login");
-        loginButton.setId("login-button");
+        loginButton.getStyleClass().add("login-button");
         loginButton.setOnAction(e -> {
             String username = usernameField.getText();
             String password = passwordField.getText();

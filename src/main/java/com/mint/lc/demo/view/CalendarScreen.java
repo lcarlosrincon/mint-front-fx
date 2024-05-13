@@ -19,6 +19,7 @@ import javafx.scene.text.FontWeight;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -30,6 +31,7 @@ public class CalendarScreen implements CalendarContractor.View {
 
     private GridPane calendarGrid;
     private Label monthLabel;
+    private Button syncButton;
 
     public CalendarScreen(CalendarPresenter presenter) {
         this.presenter = presenter;
@@ -70,7 +72,23 @@ public class CalendarScreen implements CalendarContractor.View {
 
         root.setCenter(calendarGrid);
 
-        return new Scene(root, 600, 400);
+        syncButton = new Button("Synchronize External Calendars");
+        syncButton.getStyleClass().add("login-button");
+        syncButton.setOnAction(event -> {
+            this.presenter.syncExternalCalendars();
+            syncButton.setDisable(true);
+        });
+        StackPane stackPane = new StackPane();
+        stackPane.setPadding(new Insets(10, 0, 0, 0)); // Insets(top, right, bottom, left)
+        stackPane.getChildren().add(syncButton);
+        HBox bottomBox = new HBox(10);
+        bottomBox.setAlignment(Pos.CENTER);
+        bottomBox.getChildren().addAll(stackPane);
+        root.setBottom(bottomBox);
+
+        Scene scene = new Scene(root, 600, 400);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
+        return scene;
     }
 
     public void updateMonthLabel() {
@@ -112,6 +130,7 @@ public class CalendarScreen implements CalendarContractor.View {
 
             dayButton.setOnAction(event -> this.presenter.showEventDialog(currentDate));
         }
+        syncButton.setDisable(false);
     }
 
     private Color getColorForEventCount(int numEvents) {

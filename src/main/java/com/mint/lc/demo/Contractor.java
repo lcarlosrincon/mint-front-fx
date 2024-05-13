@@ -27,6 +27,7 @@ public interface Contractor {
     interface Model<T> {
 
         String API_URL_PROPERTY = "api.url";
+        String MONTH_REQUEST_FORMAT = "yyyy-MM";
 
         T getValue();
 

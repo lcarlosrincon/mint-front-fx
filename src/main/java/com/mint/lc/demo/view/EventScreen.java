@@ -7,6 +7,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
@@ -15,6 +17,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Objects;
 
 public class EventScreen implements EventContractor.View {
 
@@ -29,6 +32,7 @@ public class EventScreen implements EventContractor.View {
     public Dialog<ButtonType> build() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Event Details");
+        dialog.setWidth(600);
         dialog.setHeaderText("Event Scheduled for " + this.presenter.getSelectedDate());
 
         // Create initial date picker
@@ -45,7 +49,6 @@ public class EventScreen implements EventContractor.View {
             }
         };
         initialDatePicker.setConverter(stringConverter);
-        //initialDatePicker.getEditor().setTextFormatter(new TextFormatter<>(stringConverter));
         initialDatePicker.getEditor().focusedProperty().addListener(buildFocusListener(initialDatePicker));
 
         DatePicker endDatePicker = new DatePicker(this.presenter.getSelectedDate());
@@ -64,6 +67,11 @@ public class EventScreen implements EventContractor.View {
         List<EventRecord> eventsOfDay = this.presenter.getEventsByDate();
         if (eventsOfDay != null && !eventsOfDay.isEmpty())
             eventListView.getItems().addAll(eventsOfDay);
+
+        Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/google.png")));
+        ImageView googleIcon = new ImageView(icon);
+        googleIcon.setFitWidth(16);
+        googleIcon.setFitHeight(16);
 
         eventListView.setCellFactory(param -> new ListCell<>() {
             private final Hyperlink editLink = new Hyperlink("Edit");
@@ -98,7 +106,10 @@ public class EventScreen implements EventContractor.View {
                     setGraphic(null);
                 } else {
                     setText(" (" + EVENT_LIST_DAY_FORMAT.format(item.getStartDate()) + " - " + EVENT_LIST_DAY_FORMAT.format(item.getEndDate()) + ") " + item.getDescription());
-                    setGraphic(new HBox(5, editLink, deleteLink));
+                    if (item.getExternalId() != null)
+                        setGraphic(new HBox(5, editLink, deleteLink, googleIcon));
+                    else
+                        setGraphic(new HBox(5, editLink, deleteLink));
                 }
             }
         });

@@ -9,6 +9,8 @@ public class EventRecord {
     private LocalDate endDate;
     private String description;
 
+    private String externalId;
+
     public EventRecord(String id, LocalDate initialDate, LocalDate endDate, String description) {
         this.id = id;
         this.startDate = initialDate;
@@ -59,5 +61,9 @@ public class EventRecord {
 
     public boolean isThisDay(LocalDate atDay) {
         return atDay.compareTo(startDate) >= 0 && atDay.compareTo(endDate) <= 0;
+    }
+
+    public String getExternalId() {
+        return externalId;
     }
 }

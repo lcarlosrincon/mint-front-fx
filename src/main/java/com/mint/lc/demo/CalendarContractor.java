@@ -33,6 +33,8 @@ public interface CalendarContractor {
         YearMonth getCurrentYearMonth();
 
         Map<LocalDate, List<EventRecord>> getEventMap();
+
+        void syncExternalCalendars();
     }
 
     interface Model {
