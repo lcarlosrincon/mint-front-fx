@@ -82,7 +82,7 @@ public class CalendarScreen implements CalendarContractor.View {
         calendarGrid.getChildren().removeIf(node -> GridPane.getRowIndex(node) > 0); // Remove existing calendar rows
 
         int daysInMonth = this.presenter.getCurrentYearMonth().lengthOfMonth();
-        int firstDayOfWeek = this.presenter.getCurrentYearMonth().atDay(1).getDayOfWeek().getValue();
+        int firstDayOfWeek = this.presenter.getCurrentYearMonth().atDay(1).getDayOfWeek().getValue() + 1;
         Map<LocalDate, List<EventRecord>> eventsMap = this.presenter.getEventMap();
         LOGGER.info("Events to paint " + eventsMap);
 
