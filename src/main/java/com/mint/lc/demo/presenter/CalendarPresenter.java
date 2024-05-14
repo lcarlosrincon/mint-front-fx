@@ -39,7 +39,7 @@ public class CalendarPresenter implements CalendarContractor.Presenter {
     public void start(Stage stage) {
         Scene scene = screen.build();
         stage.setScene(scene);
-        stage.setTitle(this.model.getInstructor().getFirstName() + " Calendar");
+        stage.setTitle(this.model.getInstructor().getInfo() + " Calendar");
         stage.getIcons().add(new Image(Objects.requireNonNull(
                 getClass().getResourceAsStream("/company_logo.png"))));
         stage.show();

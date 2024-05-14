@@ -1,6 +1,7 @@
 package com.mint.lc.demo.model.dto;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Instructor {
     private String id;
@@ -38,5 +39,14 @@ public class Instructor {
 
     public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
+    }
+
+    public String getInfo() {
+        StringBuilder info = new StringBuilder(this.firstName);
+        info.append(" ").append(this.lastName);
+        if (this.birthday != null) {
+            info.append(" (").append(DateTimeFormatter.ofPattern("MMM dd").format(this.birthday)).append(")");
+        }
+        return info.toString();
     }
 }
